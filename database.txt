@@ -1,0 +1,85 @@
+-- Create Categories table
+CREATE TABLE categories (
+    category_id INT PRIMARY KEY AUTO_INCREMENT,
+    category_name VARCHAR(50) NOT NULL
+);
+
+-- Create Products table
+CREATE TABLE products (
+    product_id INT PRIMARY KEY AUTO_INCREMENT,
+    category_id INT,
+    code VARCHAR(5) NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    description TEXT,
+    image VARCHAR(100),
+    price DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (category_id) REFERENCES categories(category_id)
+);
+
+-- Insert Categories
+INSERT INTO categories (category_name) VALUES
+('Category 1'),
+('Category 2'),
+('Category 3'),
+('Category 4'),
+('Category 5'),
+('Category 6'),
+('Category 7'),
+('Category 8'),
+('Category 9'),
+('Category 10');
+
+-- Insert Products
+INSERT INTO products (category_id, code, name, description, image, price) VALUES
+-- Category 1
+(1, '02299', 'Product 1', 'Description for Product 1', 'uploads/image1.jpg', 10.99),
+(1, '03199', 'Product 2', 'Description for Product 2', 'uploads/image2.jpg', 12.99),
+(1, '04299', 'Product 3', 'Description for Product 3', 'uploads/image3.jpg', 9.99),
+(1, '04379', 'Product 4', 'Description for Product 4', 'uploads/image4.jpg', 1529.99),
+(1, '09799', 'Product 5', 'Description for Product 5', 'uploads/image5.jpg', 8.99),
+-- Category 2
+(2, '05399', 'Product 1', 'Description for Product 1', 'uploads/image1.jpg', 11.99),
+(2, '06499', 'Product 2', 'Description for Product 2', 'uploads/image2.jpg', 13.99),
+(2, '07599', 'Product 3', 'Description for Product 3', 'uploads/image3.jpg', 10.99),
+(2, '08699', 'Product 4', 'Description for Product 4', 'uploads/image4.jpg', 16.99),
+(2, '09799', 'Product 5', 'Description for Product 5', 'uploads/image5.jpg', 9.99),
+-- Category 3
+(3, '04279', 'Product 1', 'Description for Product 1', 'uploads/image1.jpg', 14.99),
+(3, '04379', 'Product 2', 'Description for Product 2', 'uploads/image2.jpg', 18.99),
+(3, '04979', 'Product 3', 'Description for Product 3', 'uploads/image3.jpg', 12.99),
+(3, '04111', 'Product 4', 'Description for Product 4', 'uploads/image4.jpg', 19.99),
+(3, '04212', 'Product 5', 'Description for Product 5', 'uploads/image5.jpg', 11.99),
+-- Category 4
+(4, '04287', 'Product 1', 'Description for Product 1', 'uploads/image1.jpg', 20.99),
+(4, '02171', 'Product 2', 'Description for Product 2', 'uploads/image2.jpg', 22.99),
+(4, '12379', 'Product 3', 'Description for Product 3', 'uploads/image3.jpg', 19.99),
+(4, '18779', 'Product 4', 'Description for Product 4', 'uploads/image4.jpg', 25.99),
+(4, '98279', 'Product 5', 'Description for Product 5', 'uploads/image5.jpg', 17.99),
+-- Category 5
+(5, '98200', 'Product 1', 'Description for Product 1', 'uploads/image1.jpg', 30.99),
+(5, '00992', 'Product 2', 'Description for Product 2', 'uploads/image2.jpg', 32.99),
+(5, '09822', 'Product 3', 'Description for Product 3', 'uploads/image3.jpg', 29.99),
+(5, '00999', 'Product 4', 'Description for Product 4', 'uploads/image4.jpg', 35.99),
+(5, '09910', 'Product 5', 'Description for Product 5', 'uploads/image5.jpg', 27.99),
+-- Category 6
+(6, '98200', 'Product 1', 'Description for Product 1', 'uploads/image1.jpg', 30.99),
+(6, '00992', 'Product 2', 'Description for Product 2', 'uploads/image2.jpg', 32.99),
+-- Category 7
+(7, '98200', 'Product 1', 'Description for Product 1', 'uploads/image1.jpg', 30.99),
+(7, '00992', 'Product 2', 'Description for Product 2', 'uploads/image2.jpg', 32.99),
+(7, '09822', 'Product 3', 'Description for Product 3', 'uploads/image3.jpg', 29.99),
+(7, '00999', 'Product 4', 'Description for Product 4', 'uploads/image4.jpg', 35.99),
+(7, '09910', 'Product 5', 'Description for Product 5', 'uploads/image5.jpg', 27.99),
+-- Category 8
+(8, '98200', 'Product 1', 'Description for Product 1', 'uploads/image1.jpg', 30.99),
+(8, '00992', 'Product 2', 'Description for Product 2', 'uploads/image2.jpg', 32.99),
+(8, '09822', 'Product 3', 'Description for Product 3', 'uploads/image3.jpg', 29.99),
+(8, '00999', 'Product 4', 'Description for Product 4', 'uploads/image4.jpg', 35.99),
+-- Category 9
+(9, '98200', 'Product 1', 'Description for Product 1', 'uploads/image1.jpg', 30.99),
+-- Category 10
+(10, '98200', 'Product 1', 'Description for Product 1', 'uploads/image1.jpg', 30.99),
+(10, '00992', 'Product 2', 'Description for Product 2', 'uploads/image2.jpg', 32.99),
+(10, '09822', 'Product 3', 'Description for Product 3', 'uploads/image3.jpg', 29.99),
+(10, '00999', 'Product 4', 'Description for Product 4', 'uploads/image4.jpg', 35.99),
+(10, '09910', 'Product 5', 'Description for Product 5', 'uploads/image5.jpg', 27.99);
