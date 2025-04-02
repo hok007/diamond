@@ -58,7 +58,7 @@ $conn->close();
             <section id="<?php echo str_replace(' ', '-', strtolower($categoryName)); ?>" class="px-6">
                 <div class="flex items-center justify-center py-4">
                     <div class="flex-grow border-2 border-gray-300 ml-6"></div>
-                    <span class="text-xl font-bold"><?php echo "  " . $categoryName . "  "; ?></span>
+                    <span class="text-xl font-bold"><?php echo " &nbsp;&nbsp; " . $categoryName . " &nbsp;&nbsp; "; ?></span>
                     <div class="flex-grow border-2 border-gray-300 mr-6"></div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-4 cursor-pointer">
