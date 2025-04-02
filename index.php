@@ -48,9 +48,11 @@ $conn->close();
                 <?php endforeach; ?>
             </ul>
         </nav>
-        <div class="mt-4">
-            <input type="text" id="search" placeholder="Search Categories..." class="w-full border-2 border-gray-300 rounded-lg px-4 py-2">
-        </div>        
+        <div class="mt-4 flex space-x-2">
+            <input type="text" id="search" placeholder="Search Categories..." class="flex-grow border-2 border-gray-300 rounded-lg px-4 py-2">
+            <button id="searchButton" class="bg-blue-500 text-white px-4 py-2 rounded-lg">Search</button>
+            <button id="clearButton" class="bg-gray-500 text-white px-4 py-2 rounded-lg">Clear</button>
+        </div>
     </header>
 
     <div class="bg-gray-100 pb-6 w-full sm:w-2/3">
@@ -58,7 +60,7 @@ $conn->close();
             <section id="<?php echo str_replace(' ', '-', strtolower($categoryName)); ?>" class="px-6">
                 <div class="flex items-center justify-center py-4">
                     <div class="flex-grow border-2 border-gray-300 ml-6"></div>
-                    <span class="text-xl font-bold"><?php echo " &nbsp;&nbsp; " . $categoryName . " &nbsp;&nbsp; "; ?></span>
+                    <span class="text-lg sm:text-xl font-bold"><?php echo " &nbsp;&nbsp; " . $categoryName . " &nbsp;&nbsp; "; ?></span>
                     <div class="flex-grow border-2 border-gray-300 mr-6"></div>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-4 cursor-pointer">
@@ -108,12 +110,10 @@ $conn->close();
                     const containerScrollLeft = navContainer.scrollLeft;
                     const containerWidth = navContainer.offsetWidth;
 
-                   setTimeout(() => {
-                        navContainer.scrollTo({
-                            left: linkOffsetLeft - containerWidth / 2 + linkWidth / 2 + containerScrollLeft,
-                            behavior: 'smooth'
-                        });
-                    }, 100);
+                    navContainer.scrollTo({
+                        left: linkOffsetLeft - containerWidth / 2 + linkWidth / 2,
+                        behavior: 'smooth'
+                    });
                 }
             });
         }
@@ -198,9 +198,11 @@ $conn->close();
 
         document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.getElementById('search');
+            const searchButton = document.getElementById('searchButton');
+            const clearButton = document.getElementById('clearButton');
             const productSections = document.querySelectorAll('section');
 
-            searchInput.addEventListener('input', () => {
+            searchButton.addEventListener('click', () => {
                 const query = searchInput.value.toLowerCase();
 
                 productSections.forEach(section => {
@@ -211,6 +213,16 @@ $conn->close();
                     } else {
                         section.style.display = 'none';
                     }
+                });
+
+                window.addEventListener('scroll', highlightActiveSection);
+                highlightActiveSection();
+            });
+
+            clearButton.addEventListener('click', () => {
+                searchInput.value = '';
+                productSections.forEach(section => {
+                    section.style.display = 'block';
                 });
 
                 window.addEventListener('scroll', highlightActiveSection);
