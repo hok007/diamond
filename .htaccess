@@ -1,0 +1,9 @@
+RewriteEngine On
+RewriteBase /diamond/
+
+# If the requested file or directory does not exist
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Redirect everything to index.php
+RewriteRule ^([^/]+)/?$ index.php?store=$1 [L,QSA]

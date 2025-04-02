@@ -1,30 +1,5 @@
-<?php
-    require 'db.php';
-
-    $productLists = [];
-    $sql = "SELECT c.category_name, p.code, p.name, p.description, p.image, p.price
-            FROM categories c INNER JOIN products p ON c.category_id = p.category_id 
-            ORDER BY c.category_id ASC, p.product_id ASC";
-    $result = $conn->query($sql);
-
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $categoryName = $row['category_name'];
-            if (!isset($productLists[$categoryName])) {
-                $productLists[$categoryName] = [];
-            }
-            $productLists[$categoryName][] = [
-                "code" => $row['code'],
-                "name" => $row['name'],
-                "description" => $row['description'],
-                "image" => $row['image'],
-                "price" => $row['price']
-            ];
-        }
-    }
-
-    $conn->close();
-?>
+<?php require 'fetch-store.php' ?>
+<?php require 'fetch-product.php' ?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -36,11 +11,11 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flowbite@1.4.0/dist/flowbite.min.js"></script>
-    <title>Diamond KTV III</title>
+    <title><?php echo $storeData['store_name'] ?></title>
 </head>
 <body class="bg-gray-200 mx-auto w-full flex flex-col items-center">
     <header class="bg-white text-black w-full sm:w-2/3 p-4 sticky top-0">
-        <h1 class="text-2xl font-bold">Diamond KTV III</h1>
+        <h1 class="text-2xl font-bold"><?php echo $storeData['store_name'] ?></h1>
         <nav class="bg-white text-black mt-2 overflow-x-scroll whitespace-nowrap">
             <ul class="flex space-x-2 py-4">
                 <?php foreach ($productLists as $categoryName => $products): ?>
