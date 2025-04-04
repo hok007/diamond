@@ -116,7 +116,7 @@
                         <button class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-2 rounded-full" onclick="changeImage(-1, this)">❮</button>
                         <button class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-2 rounded-full" onclick="changeImage(1, this)">❯</button>
                     ` : ''}
-                    <div class="absolute bottom-2 right-1 transform -translate-x-1 bg-gray-800 bg-opacity-50 text-white px-2 py-1 rounded" id="image-index">1 of ${product.image.length}</div>
+                    <div class="absolute bottom-2 right-1 transform -translate-x-1 bg-gray-800 bg-opacity-50 text-white text-base px-2 py-1 rounded" id="image-index">1 of ${product.image.length}</div>
                 </div>`;
             } else {
                 imageHtml = `<img src="default-image.jpg" alt="No image" class="w-full h-96 object-cover rounded-tl-xl rounded-tr-xl">`;

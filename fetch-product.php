@@ -30,6 +30,7 @@
             ];
         }
     }
-
+    
+    $stmt->close();
     $conn->close();
 ?>
