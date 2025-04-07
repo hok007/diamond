@@ -209,7 +209,7 @@
                     const section = document.getElementById(sectionId);
                     const headerOffset = document.querySelector('header').offsetHeight;
                     const sectionPosition = section.getBoundingClientRect().top + window.scrollY - headerOffset;
-                    window.scrollTo({ top: sectionPosition, behavior: 'smooth' });
+                    window.scrollTo({ top: sectionPosition, behavior: 'auto' });
                 });
             });
 
