@@ -13,7 +13,7 @@
     <title><?php echo $storeData['store_name'] ?></title>
 </head>
 <body class="bg-gray-200 mx-auto w-full flex flex-col items-center">
-    <header class="bg-white text-black w-full sm:w-2/3 p-4 sticky top-0">
+    <header id="mainHeader" class="bg-white text-black w-full sm:w-2/3 p-4 sticky top-0 z-50">
         <h1 class="text-2xl font-bold"><?php echo $storeData['store_name'] ?></h1>
         <nav class="bg-white text-black mt-2 overflow-x-scroll whitespace-nowrap">
             <ul class="flex space-x-2 py-4">
@@ -31,13 +31,13 @@
 
     <div class="bg-gray-100 pb-6 w-full sm:w-2/3">
         <?php foreach ($productLists as $categoryName => $products): ?>
-            <section id="<?php echo str_replace(' ', '-', strtolower($categoryName)); ?>" class="px-6">
-                <div class="flex items-center justify-center py-4">
+            <section id="<?php echo str_replace(' ', '-', strtolower($categoryName)); ?>">
+                <div class="category-divider bg-gray-100 flex items-center justify-center py-4 sticky z-10">
                     <div class="flex-grow border-2 border-gray-300 ml-6"></div>
                     <span class="text-lg sm:text-xl font-bold"><?php echo " &nbsp;&nbsp; " . $categoryName . " &nbsp;&nbsp; "; ?></span>
                     <div class="flex-grow border-2 border-gray-300 mr-6"></div>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-4 cursor-pointer">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-4 cursor-pointer px-6">
                     <?php foreach ($products as $index => $product): ?>
                         <div class="w-full bg-white rounded-lg shadow-md overflow-hidden text-left" data-product='<?php echo htmlspecialchars(json_encode($product), ENT_QUOTES, 'UTF-8'); ?>'>
                             <img src="<?php echo $product['image'][0]; ?>" alt="<?php echo $product['name']; ?>" class="w-full h-96 object-cover">
@@ -179,6 +179,19 @@
             });
         }
 
+        function updateDividerTops() {
+            const header = document.getElementById('mainHeader');
+            const dividers = document.querySelectorAll('.category-divider');
+
+            if (header && dividers.length) {
+                const headerHeight = header.offsetHeight;
+
+                dividers.forEach(divider => {
+                    divider.style.top = `${headerHeight}px`;
+                });
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.grid > div').forEach(productCard => {
                 productCard.addEventListener('click', () => {
@@ -237,6 +250,9 @@
                 highlightActiveSection();
             });
         });
+
+        window.addEventListener('DOMContentLoaded', updateDividerTops);
+        window.addEventListener('resize', updateDividerTops);
     </script>
 </body>
 </html>
