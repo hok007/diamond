@@ -1,3 +1,18 @@
+<?php
+    include 'db.php';
+
+    $sql = "SELECT * FROM categories";
+    $result = $conn->query($sql);
+
+    if (!$result) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => $conn->error]);
+        exit;
+    }
+
+    $conn->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,19 +26,12 @@
     <title>Categories</title>
 </head>
 <body>
-    <div class="flex items-center justify-between">
-        <span class="text-2xl font-bold">Categories</span>
-        <button class="bg-green-500 text-white text-sm font-bold px-1 py-2 rounded" onclick="window.location.href='add_category.php'">Add New</button>
-    </div>
+    <div class="container mx-auto p-4 h-screen overflow-y-scroll">
+        <div class="flex items-center justify-between mb-4">
+            <span class="text-2xl font-bold">Categories</span>
+            <button class="bg-green-500 text-white text-sm font-bold px-1 py-2 rounded" onclick="window.location.href='add_category.php'">Add New</button>
+        </div>
 
-    <?php
-        include 'db.php';
-
-        $sql = "SELECT * FROM categories";
-        $result = $conn->query($sql);
-    ?>
-
-    <div class="container mx-auto mt-5">
         <table class="table-auto w-full border-collapse border border-gray-300">
             <thead>
                 <tr class="bg-gray-200">
@@ -52,7 +60,5 @@
             </tbody>
         </table>
     </div>
-
-    <?php $conn->close(); ?>
 </body>
 </html>

@@ -49,7 +49,7 @@
     <title>Products</title>
 </head>
 <body>
-    <div class="container mx-auto p-4 h-screen overflow-y-auto">
+    <div class="container mx-auto p-4 h-screen overflow-y-scroll">
         <div class="flex items-center justify-between mb-4">
             <span class="text-2xl font-bold">Products</span>
             <button class="bg-green-500 text-white text-sm font-bold px-1 py-2 rounded" onclick="window.location.href='add_product.php'">Add New</button>

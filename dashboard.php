@@ -18,20 +18,28 @@
         <div class="w-1/6 bg-gray-700 text-white p-4">
             <h2 class="text-2xl font-bold mb-4">Menu</h2>
             <ul>
-                <li class="mb-2"><button class="w-full text-left p-2 hover:bg-red-500"
-                        onclick="showDetail('categories')">Categories</button></li>
-                <li class="mb-2"><button class="w-full text-left p-2 hover:bg-red-500"
-                        onclick="showDetail('products')">Products</button></li>
-                <li class="mb-2"><button class="w-full text-left p-2 hover:bg-red-500"
-                        onclick="showDetail('settings')">Settings</button></li>
+                <li class="mb-2">
+                    <button class="w-full text-left p-2 hover:bg-red-100 hover:text-black focus:bg-red-500"
+                        onclick="showDetail('categories')">Categories</button>
+                </li>
+                <li class="mb-2">
+                    <button class="w-full text-left p-2 hover:bg-red-100 hover:text-black focus:bg-red-500"
+                        onclick="showDetail('products')">Products</button>
+                </li>
+                <li class="mb-2">
+                    <button class="w-full text-left p-2 hover:bg-red-100 hover:text-black focus:bg-red-500"
+                        onclick="showDetail('settings')">Settings</button>
+                </li>
             </ul>
         </div>
 
         <!-- Content -->
         <div class="w-5/6 bg-gray-100 p-0">
             <div id="content" class="text-gray-800">
-                <h2 class="text-3xl font-bold">Welcome to the Dashboard</h2>
-                <p>Select a menu item to view details.</p>
+                <div class="container mx-auto p-4">
+                    <h2 class="text-3xl font-bold">Welcome to the Dashboard</h2>
+                    <p>Select a menu item to view details.</p>
+                </div>
             </div>
         </div>
     </div>
