@@ -28,7 +28,7 @@
         </div>
 
         <!-- Content -->
-        <div class="w-5/6 bg-gray-100 p-4">
+        <div class="w-5/6 bg-gray-100 p-0">
             <div id="content" class="text-gray-800">
                 <h2 class="text-3xl font-bold">Welcome to the Dashboard</h2>
                 <p>Select a menu item to view details.</p>
@@ -39,7 +39,7 @@
     <script>
         function showDetail(section) {
             const content = document.getElementById('content');
-            content.innerHTML = '<p">Loading...</p>';
+            content.innerHTML = '<p class="p-4">Loading...</p>';
             if (section === 'categories') {
                 axios.get('categories.php')
                     .then(response => { content.innerHTML = response.data; })
@@ -98,6 +98,52 @@
                     Swal.fire('Deleted!', 'Your product has been deleted.', 'success');
                 }
             });
+        }
+
+        function changeRowsPerPage(selectElement) {
+            const rowsPerPage = selectElement.value;
+
+            axios.get(`fetch_admin_product.php?rows_per_page=${rowsPerPage}`)
+                .then(response => {
+                    const data = response.data;
+                    const productsTable = document.getElementById('products_table_detail');
+
+                    if (!data.success || data.products.length === 0) {
+                        productsTable.innerHTML = `
+                            <tr><td colspan="8" class="text-center py-4">No products found.</td></tr>
+                        `;
+                        return;
+                    }
+
+                    const rowsHTML = data.products.map(product => {
+                        const images = JSON.parse(product.image);
+                        const imageTags = images.map(img => `<img src="${img}" alt="${img}" class="w-12 h-12 object-cover inline-block m-[2px]" >`).join('');
+                        const price = product.price ? '$' + parseFloat(product.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
+
+                        return  `
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2 text-center text-base whitespace-nowrap">${product.product_id}</td>
+                                <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">${product.code}</td>
+                                <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">${product.name}</td>
+                                <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">${product.description}</td>
+                                <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">${price}</td>
+                                <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">${product.category_name}</td>
+                                <td class="border border-gray-300 px-4 py-2 text-left text-base">${imageTags}</td>
+                                <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">
+                                    <button onclick="editProduct('${product.code}')" class="bg-blue-500 text-white px-2 py-1 rounded">Edit</button> 
+                                    <button onclick="deleteProduct('${product.code}')" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+
+                    productsTable.innerHTML = ``;
+                    productsTable.innerHTML = rowsHTML;
+                })
+                .catch(error => {
+                    Swal.fire('Error', 'Failed to load content. Please try again.', 'error');
+                    console.error('Error loading products content:', error);
+                });
         }
     </script>
 </body>

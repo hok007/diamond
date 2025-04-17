@@ -1,3 +1,41 @@
+<?php
+    require 'db.php';
+
+    try {
+        $rows_per_page = 10;
+        $page = 1;
+        $offset = ($page - 1) * $rows_per_page;
+
+        $sql_paginated = "SELECT c.category_name, p.product_id, p.code, p.name, p.description, p.image, p.price
+            FROM categories c INNER JOIN products p ON c.category_id = p.category_id
+            ORDER BY c.category_id ASC, p.product_id ASC LIMIT ?, ?";
+        $stmt = $conn->prepare($sql_paginated);
+        $stmt->bind_param('ii', $offset, $rows_per_page);
+        $stmt->execute();
+        $result_paginated = $stmt->get_result();
+
+        $total_rows_query = "SELECT COUNT(*) as total FROM products";
+        $total_rows_result = $conn->query($total_rows_query);
+        if (!$total_rows_result) {
+            throw new Exception('Total rows query error: ' . $conn->error);
+        }
+        $total_rows = $total_rows_result->fetch_assoc()['total'];
+        $total_pages = ceil($total_rows / $rows_per_page);
+
+        $adminProducts = [];
+        while ($row = $result_paginated->fetch_assoc()) {
+            $adminProducts[] = $row;
+        }
+
+        $stmt->close();
+        $conn->close();
+        
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,81 +49,86 @@
     <title>Products</title>
 </head>
 <body>
-    <div class="full-height-container">
-        <div class="flex items-center justify-between">
+    <div class="container mx-auto p-4 h-screen overflow-y-auto">
+        <div class="flex items-center justify-between mb-4">
             <span class="text-2xl font-bold">Products</span>
             <button class="bg-green-500 text-white text-sm font-bold px-1 py-2 rounded" onclick="window.location.href='add_product.php'">Add New</button>
         </div>
-
-        <?php
-            include 'db.php';
-            $sql = "SELECT * FROM products";
-            $result = $conn->query($sql);
-        ?>
-
-        <div class="container mx-auto mt-5">
-            <table class="table-auto w-full border-collapse border border-gray-300">
-                <thead>
-                    <tr class="bg-gray-200">
-                        <th class="border border-gray-300 px-4 py-2 text-left">Code</th>
-                        <th class="border border-gray-300 px-4 py-2 text-left">Name</th>
-                        <th class="border border-gray-300 px-4 py-2 text-left">Description</th>
-                        <th class="border border-gray-300 px-4 py-2 text-left">Price</th>
-                        <th class="border border-gray-300 px-4 py-2 text-left">Category</th>
-                        <th class="border border-gray-300 px-4 py-2 text-left">Image</th>
-                        <th class="border border-gray-300 px-4 py-2 text-left">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php
-                        $rows_per_page = 10;
-                        $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-                        $offset = ($page - 1) * $rows_per_page;
-
-                        $sql_paginated = "SELECT * FROM products LIMIT $offset, $rows_per_page";
-                        $result_paginated = $conn->query($sql_paginated);
-
-                        $total_rows = $result->num_rows;
-                        $total_pages = ceil($total_rows / $rows_per_page);
-                    ?>
-
-                    <?php if ($result_paginated->num_rows > 0): ?>
-                        <?php while ($row = $result_paginated->fetch_assoc()): ?>
-                            <tr class="hover:bg-gray-100">
-                                <td class="border border-gray-300 px-4 py-2 text-left whitespace-nowrap"><?php echo $row['code']; ?></td>
-                                <td class="border border-gray-300 px-4 py-2 text-left whitespace-nowrap"><?php echo $row['name']; ?></td>
-                                <td class="border border-gray-300 px-4 py-2 text-left"><?php echo $row['description']; ?></td>
-                                <td class="border border-gray-300 px-4 py-2 text-left whitespace-nowrap"><?php echo isset($row['price']) ? '$' . number_format($row['price'], 2) : 'Price not available'; ?></td>
-                                <td class="border border-gray-300 px-4 py-2 text-left whitespace-nowrap"><?php echo $row['category_id']; ?></td>
-                                <td class="border border-gray-300 px-4 py-2 text-left">
-                                    <?php $images = json_decode($row['image'], true); foreach ($images as $image): ?>
-                                        <img src="<?php echo $image; ?>" alt="<?php echo $row['name']; ?>" class="w-16 h-16 object-cover inline-block m-[2px]">
-                                    <?php endforeach; ?></td>
-                                <td class="border border-gray-300 px-4 py-2 text-left whitespace-nowrap">
-                                    <button onclick="editProduct('<?php echo htmlspecialchars($row['code'], ENT_QUOTES, 'UTF-8'); ?>')" class="bg-blue-500 text-white px-2 py-1 rounded">Edit</button> 
-                                    <button onclick="deleteProduct('<?php echo htmlspecialchars($row['code'], ENT_QUOTES, 'UTF-8'); ?>')" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
-                                </td>
-                            </tr>
-                        <?php endwhile; ?>
-                    <?php endif; ?>
-
-                    <tr>
-                        <td colspan="7" class="border border-gray-300 px-4 py-2 text-center">
-                            <div class="flex justify-center space-x-2">
-                                <?php if ($page > 1): ?>
-                                    <a href="?page=<?php echo $page - 1; ?>" class="bg-gray-300 px-3 py-1 rounded">Previous</a>
-                                <?php endif; ?>
-                                <?php if ($page < $total_pages): ?>
-                                    <a href="?page=<?php echo $page + 1; ?>" class="bg-gray-300 px-3 py-1 rounded">Next</a>
-                                <?php endif; ?>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+        
+        <div class="flex justify-between items-center mt-5 mb-3">
+            <div class="flex items-center space-x-2">
+                <label for="rows_per_page" class="text-sm">Rows per page:</label>
+                <select id="rows_per_page" name="rows_per_page" class="border border-gray-300 rounded px-2 py-1" onchange="changeRowsPerPage(this)">
+                    <option value="10" <?php echo $rows_per_page == 10 ? 'selected' : ''; ?>>10</option>
+                    <option value="20" <?php echo $rows_per_page == 20 ? 'selected' : ''; ?>>20</option>
+                    <option value="50" <?php echo $rows_per_page == 50 ? 'selected' : ''; ?>>50</option>
+                </select>
+            </div>
+            <div class="flex items-center space-x-2">
+                <label for="search" class="text-sm">Search:</label>
+                <input type="text" id="search" name="search" class="border border-gray-300 rounded px-2 py-1" placeholder="" onkeyup="searchProducts(this.value)">
+            </div>
         </div>
 
-        <?php $conn->close(); ?>
+        <table class="w-full border-collapse border border-gray-300">
+            <thead>
+                <tr class="bg-gray-200">
+                    <th class="border border-gray-300 px-4 py-2 text-left">No</th>
+                    <th class="border border-gray-300 px-4 py-2 text-left">Code</th>
+                    <th class="border border-gray-300 px-4 py-2 text-left">Name</th>
+                    <th class="border border-gray-300 px-4 py-2 text-left">Description</th>
+                    <th class="border border-gray-300 px-4 py-2 text-left">Price</th>
+                    <th class="border border-gray-300 px-4 py-2 text-left">Category</th>
+                    <th class="border border-gray-300 px-4 py-2 text-left">Image</th>
+                    <th class="border border-gray-300 px-4 py-2 text-left">Actions</th>
+                </tr>
+            </thead>
+            <tbody id="products_table_detail">
+                <?php if (count($adminProducts) > 0): ?>
+                    <?php foreach ($adminProducts as $row): ?>
+                        <tr>
+                            <td class="border border-gray-300 px-4 py-2 text-center text-base whitespace-nowrap"><?php echo $row['product_id']; ?></td>
+                            <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap"><?php echo $row['code']; ?></td>
+                            <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap"><?php echo $row['name']; ?></td>
+                            <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap"><?php echo $row['description']; ?></td>
+                            <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap"><?php echo isset($row['price']) ? '$' . number_format($row['price'], 2) : ''; ?></td>
+                            <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap"><?php echo $row['category_name']; ?></td>
+                            <td class="border border-gray-300 px-4 py-2 text-left text-base">
+                                <?php 
+                                    $images = json_decode($row['image'], true) ?? []; 
+                                    echo implode('', array_map(function($img) use ($row) {
+                                        return "<img src=\"{$img}\" alt=\"{$row['name']}\" class=\"w-12 h-12 object-cover inline-block m-[2px]\">";
+                                    }, $images));
+                                ?>
+                            </td>
+                            <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">
+                                <button onclick="editProduct('<?php echo htmlspecialchars($row['code'], ENT_QUOTES, 'UTF-8'); ?>')" class="bg-blue-500 text-white px-2 py-1 rounded">Edit</button> 
+                                <button onclick="deleteProduct('<?php echo htmlspecialchars($row['code'], ENT_QUOTES, 'UTF-8'); ?>')" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <tr>
+                        <td colspan="8" class="border border-gray-300 px-4 py-2 text-center">No records found</td>
+                    </tr>
+                <?php endif; ?>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="8" class="border border-gray-300 px-4 py-2 text-center">
+                        <div class="flex justify-between items-center space-x-2">
+                            <span class="text-sm">Showing <?php echo $offset + 1; ?> to <?php echo min($offset + $rows_per_page, $total_rows); ?> of <?php echo $total_rows; ?> entries</span>
+                            <?php if ($page > 1): ?>
+                                <a href="?page=<?php echo $page - 1; ?>" class="bg-gray-300 px-3 py-1 rounded">Previous</a>
+                            <?php endif; ?>
+                            <?php if ($page < $total_pages): ?>
+                                <a href="?page=<?php echo $page + 1; ?>" class="bg-gray-300 px-3 py-1 rounded">Next</a>
+                            <?php endif; ?>
+                        </div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
     </div>
 </body>
 </html>
