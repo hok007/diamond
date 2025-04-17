@@ -1,5 +1,5 @@
 <?php
-    require 'fetch-store.php';
+    require 'fetch_store.php';
     require 'db.php';
 
     $productLists = [];

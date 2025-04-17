@@ -1,4 +1,4 @@
-<?php require 'fetch-product.php' ?>
+<?php require 'fetch_product.php' ?>
 
 <!DOCTYPE html>
 <html lang="en">
