@@ -65,8 +65,9 @@
                 </select>
             </div>
             <div class="flex items-center space-x-2">
-                <label for="search" class="text-sm">Search:</label>
-                <input type="text" id="search" name="search" class="border border-gray-300 rounded px-2 py-1" placeholder="" onkeyup="searchProducts(this.value)">
+                <label for="searchInput" class="text-sm">Search:</label>
+                <input type="text" id="searchInput" name="search" class="border border-gray-300 rounded px-2 py-1" placeholder="" oninput="debouncedSearch(this.value)">
+                <button onclick="document.getElementById('searchInput').value = ''; searchProducts('')" class="bg-gray-300 text-sm px-2 py-1 rounded ml-2 hover:bg-gray-400">Clear</button>
             </div>
         </div>
 

@@ -108,10 +108,21 @@
             });
         }
 
-        function changeRowsPerPage(selectElement) {
-            const rowsPerPage = selectElement.value;
+        function debounce(func, wait) {
+            let timeout;
+            return function (...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
 
-            axios.get(`fetch_admin_product.php?rows_per_page=${rowsPerPage}`)
+        const debouncedSearch = debounce(searchProducts, 300);
+
+        function searchProducts(searchTerm) {
+            const rowsPerPage = document.querySelector('select[name="rows_per_page"]')?.value || 10;
+            const url = `fetch_admin_product.php?rows_per_page=${rowsPerPage}&search=${encodeURIComponent(searchTerm)}`;
+
+            axios.get(url)
                 .then(response => {
                     const data = response.data;
                     const tBody = document.querySelector('#products_table tbody');
@@ -121,6 +132,7 @@
                         tBody.innerHTML = `
                             <tr><td colspan="8" class="text-center py-4">No products found.</td></tr>
                         `;
+                        tFooter.innerHTML = '';
                         return;
                     }
 
@@ -129,7 +141,7 @@
                         const imageTags = images.map(img => `<img src="${img}" alt="${img}" class="w-12 h-12 object-cover inline-block m-[2px]" >`).join('');
                         const price = product.price ? '$' + parseFloat(product.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
 
-                        return  `
+                        return `
                             <tr>
                                 <td class="border border-gray-300 px-4 py-2 text-center text-base whitespace-nowrap">${product.product_id}</td>
                                 <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">${product.code}</td>
@@ -151,8 +163,131 @@
                             <td colspan="8" class="border border-gray-300 px-4 py-2 text-center">
                                 <div class="flex justify-between items-center space-x-2">
                                     <span class="text-sm">Showing ${data.offset + 1} to ${Math.min(data.offset + data.rows_per_page, data.total_rows)} of ${data.total_rows} entries</span>
-                                    ${data.current_page > 1 ? `<button onclick="changePage(${data.current_page - 1})" class="bg-gray-300 px-3 py-1 rounded">Previous</button>` : ''}
-                                    ${data.current_page < data.total_pages ? `<button onclick="changePage(${data.current_page + 1})" class="bg-gray-300 px-3 py-1 rounded">Next</button>` : ''}
+                                    ${data.current_page > 1 ? `<button onclick="changePage(${data.current_page - 1}, '${encodeURIComponent(searchTerm)}')" class="bg-gray-300 px-3 py-1 rounded">Previous</button>` : ''}
+                                    ${data.current_page < data.total_pages ? `<button onclick="changePage(${data.current_page + 1}, '${encodeURIComponent(searchTerm)}')" class="bg-gray-300 px-3 py-1 rounded">Next</button>` : ''}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+
+                    tBody.innerHTML = rowsBodyHTML;
+                    tFooter.innerHTML = rowsFooterHTML;
+                })
+                .catch(error => {
+                    Swal.fire('Error', 'Failed to load content. Please try again.', 'error');
+                    console.error('Error loading products content:', error);
+                });
+        }
+
+        function changePage(page, searchTerm = '') {
+            const rowsPerPage = document.querySelector('select[name="rows_per_page"]')?.value || 10;
+            const url = `fetch_admin_product.php?page=${page}&rows_per_page=${rowsPerPage}&search=${encodeURIComponent(searchTerm)}`;
+
+            axios.get(url)
+                .then(response => {
+                    const data = response.data;
+                    const tBody = document.querySelector('#products_table tbody');
+                    const tFooter = document.querySelector('#products_table tfoot');
+
+                    if (!data.success || data.products.length === 0) {
+                        tBody.innerHTML = `
+                            <tr><td colspan="8" class="text-center py-4">No products found.</td></tr>
+                        `;
+                        tFooter.innerHTML = '';
+                        return;
+                    }
+
+                    const rowsBodyHTML = data.products.map(product => {
+                        const images = JSON.parse(product.image);
+                        const imageTags = images.map(img => `<img src="${img}" alt="${img}" class="w-12 h-12 object-cover inline-block m-[2px]" >`).join('');
+                        const price = product.price ? '$' + parseFloat(product.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
+
+                        return `
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2 text-center text-base whitespace-nowrap">${product.product_id}</td>
+                                <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">${product.code}</td>
+                                <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">${product.name}</td>
+                                <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">${product.description}</td>
+                                <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">${price}</td>
+                                <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">${product.category_name}</td>
+                                <td class="border border-gray-300 px-4 py-2 text-left text-base">${imageTags}</td>
+                                <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">
+                                    <button onclick="editProduct('${product.code}')" class="bg-blue-500 text-white px-2 py-1 rounded">Edit</button> 
+                                    <button onclick="deleteProduct('${product.code}')" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+
+                    const rowsFooterHTML = `
+                        <tr>
+                            <td colspan="8" class="border border-gray-300 px-4 py-2 text-center">
+                                <div class="flex justify-between items-center space-x-2">
+                                    <span class="text-sm">Showing ${data.offset + 1} to ${Math.min(data.offset + data.rows_per_page, data.total_rows)} of ${data.total_rows} entries</span>
+                                    ${data.current_page > 1 ? `<button onclick="changePage(${data.current_page - 1}, '${encodeURIComponent(searchTerm)}')" class="bg-gray-300 px-3 py-1 rounded">Previous</button>` : ''}
+                                    ${data.current_page < data.total_pages ? `<button onclick="changePage(${data.current_page + 1}, '${encodeURIComponent(searchTerm)}')" class="bg-gray-300 px-3 py-1 rounded">Next</button>` : ''}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+
+                    tBody.innerHTML = rowsBodyHTML;
+                    tFooter.innerHTML = rowsFooterHTML;
+                })
+                .catch(error => {
+                    Swal.fire('Error', 'Failed to load content. Please try again.', 'error');
+                    console.error('Error loading products content:', error);
+                });
+        }
+
+        function changeRowsPerPage(selectElement) {
+            const rowsPerPage = selectElement.value;
+            const searchTerm = document.querySelector('#searchInput')?.value || '';
+            const url = `fetch_admin_product.php?rows_per_page=${rowsPerPage}&search=${encodeURIComponent(searchTerm)}`;
+
+            axios.get(url)
+                .then(response => {
+                    const data = response.data;
+                    const tBody = document.querySelector('#products_table tbody');
+                    const tFooter = document.querySelector('#products_table tfoot');
+
+                    if (!data.success || data.products.length === 0) {
+                        tBody.innerHTML = `
+                            <tr><td colspan="8" class="text-center py-4">No products found.</td></tr>
+                        `;
+                        tFooter.innerHTML = '';
+                        return;
+                    }
+
+                    const rowsBodyHTML = data.products.map(product => {
+                        const images = JSON.parse(product.image);
+                        const imageTags = images.map(img => `<img src="${img}" alt="${img}" class="w-12 h-12 object-cover inline-block m-[2px]" >`).join('');
+                        const price = product.price ? '$' + parseFloat(product.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
+
+                        return `
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2 text-center text-base whitespace-nowrap">${product.product_id}</td>
+                                <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">${product.code}</td>
+                                <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">${product.name}</td>
+                                <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">${product.description}</td>
+                                <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">${price}</td>
+                                <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">${product.category_name}</td>
+                                <td class="border border-gray-300 px-4 py-2 text-left text-base">${imageTags}</td>
+                                <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">
+                                    <button onclick="editProduct('${product.code}')" class="bg-blue-500 text-white px-2 py-1 rounded">Edit</button> 
+                                    <button onclick="deleteProduct('${product.code}')" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+                                </td>
+                            </tr>
+                        `;
+                    }).join('');
+
+                    const rowsFooterHTML = `
+                        <tr>
+                            <td colspan="8" class="border border-gray-300 px-4 py-2 text-center">
+                                <div class="flex justify-between items-center space-x-2">
+                                    <span class="text-sm">Showing ${data.offset + 1} to ${Math.min(data.offset + data.rows_per_page, data.total_rows)} of ${data.total_rows} entries</span>
+                                    ${data.current_page > 1 ? `<button onclick="changePage(${data.current_page - 1}, '${encodeURIComponent(searchTerm)}')" class="bg-gray-300 px-3 py-1 rounded">Previous</button>` : ''}
+                                    ${data.current_page < data.total_pages ? `<button onclick="changePage(${data.current_page + 1}, '${encodeURIComponent(searchTerm)}')" class="bg-gray-300 px-3 py-1 rounded">Next</button>` : ''}
                                 </div>
                             </td>
                         </tr>
