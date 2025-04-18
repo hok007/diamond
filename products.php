@@ -70,7 +70,7 @@
             </div>
         </div>
 
-        <table class="w-full border-collapse border border-gray-300">
+        <table id="products_table" class="w-full border-collapse border border-gray-300">
             <thead>
                 <tr class="bg-gray-200">
                     <th class="border border-gray-300 px-4 py-2 text-left">No</th>
@@ -83,7 +83,7 @@
                     <th class="border border-gray-300 px-4 py-2 text-left">Actions</th>
                 </tr>
             </thead>
-            <tbody id="products_table_detail">
+            <tbody>
                 <?php if (count($adminProducts) > 0): ?>
                     <?php foreach ($adminProducts as $row): ?>
                         <tr>

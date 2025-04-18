@@ -114,16 +114,17 @@
             axios.get(`fetch_admin_product.php?rows_per_page=${rowsPerPage}`)
                 .then(response => {
                     const data = response.data;
-                    const productsTable = document.getElementById('products_table_detail');
+                    const tBody = document.querySelector('#products_table tbody');
+                    const tFooter = document.querySelector('#products_table tfoot');
 
                     if (!data.success || data.products.length === 0) {
-                        productsTable.innerHTML = `
+                        tBody.innerHTML = `
                             <tr><td colspan="8" class="text-center py-4">No products found.</td></tr>
                         `;
                         return;
                     }
 
-                    const rowsHTML = data.products.map(product => {
+                    const rowsBodyHTML = data.products.map(product => {
                         const images = JSON.parse(product.image);
                         const imageTags = images.map(img => `<img src="${img}" alt="${img}" class="w-12 h-12 object-cover inline-block m-[2px]" >`).join('');
                         const price = product.price ? '$' + parseFloat(product.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
@@ -145,8 +146,20 @@
                         `;
                     }).join('');
 
-                    productsTable.innerHTML = ``;
-                    productsTable.innerHTML = rowsHTML;
+                    const rowsFooterHTML = `
+                        <tr>
+                            <td colspan="8" class="border border-gray-300 px-4 py-2 text-center">
+                                <div class="flex justify-between items-center space-x-2">
+                                    <span class="text-sm">Showing ${data.offset + 1} to ${Math.min(data.offset + data.rows_per_page, data.total_rows)} of ${data.total_rows} entries</span>
+                                    ${data.current_page > 1 ? `<button onclick="changePage(${data.current_page - 1})" class="bg-gray-300 px-3 py-1 rounded">Previous</button>` : ''}
+                                    ${data.current_page < data.total_pages ? `<button onclick="changePage(${data.current_page + 1})" class="bg-gray-300 px-3 py-1 rounded">Next</button>` : ''}
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+
+                    tBody.innerHTML = rowsBodyHTML;
+                    tFooter.innerHTML = rowsFooterHTML;
                 })
                 .catch(error => {
                     Swal.fire('Error', 'Failed to load content. Please try again.', 'error');

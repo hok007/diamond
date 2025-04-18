@@ -31,7 +31,15 @@
         $stmt->close();
         $conn->close();
         
-        echo json_encode(['success' => true, 'products' => $adminProducts]);
+        echo json_encode([
+            'success' => true, 
+            'products' => $adminProducts, 
+            'total_pages' => $total_pages, 
+            'current_page' => $page, 
+            'rows_per_page' => $rows_per_page,
+            'offset' => $offset,
+            'total_rows' => $total_rows
+        ]);
         
     } catch (Exception $e) {
         http_response_code(500);
