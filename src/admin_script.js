@@ -144,10 +144,10 @@ function searchProducts(searchTerm) {
     fetchAndRenderProducts(1, searchTerm);
 }
 
-function changePage(page, searchTerm = '') {
+function changePageProducts(page, searchTerm = '') {
     fetchAndRenderProducts(page, searchTerm);
 }
 
-function changeRowsPerPage(selectElement) {
+function changeRowsPerPageProducts(selectElement) {
     fetchAndRenderProducts(1);
 }
