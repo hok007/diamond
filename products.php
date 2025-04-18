@@ -121,10 +121,10 @@
                             <span class="text-sm">Showing <?php echo $offset + 1; ?> to <?php echo min($offset + $rows_per_page, $total_rows); ?> of <?php echo $total_rows; ?> entries</span>
                             <div class="flex items-center space-x-2">
                                 <?php if ($page > 1): ?>
-                                    <button onclick="changePageProducts(<?php echo $page - 1; ?>, '<?php echo htmlspecialchars($searchTerm ?? '', ENT_QUOTES, 'UTF-8'); ?>')" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">Previous</button>
+                                    <button onclick="changePageProducts(<?php echo $page - 1; ?>)" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">Previous</button>
                                 <?php endif; ?>
                                 <?php if ($page < $total_pages): ?>
-                                    <button onclick="changePageProducts(<?php echo $page + 1; ?>, '<?php echo htmlspecialchars($searchTerm ?? '', ENT_QUOTES, 'UTF-8'); ?>')" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">Next</button>
+                                    <button onclick="changePageProducts(<?php echo $page + 1; ?>)" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">Next</button>
                                 <?php endif; ?>
                             </div>
                         </div>

@@ -66,7 +66,7 @@
             </div>
             <div class="flex items-center space-x-2">
                 <label for="searchInput" class="text-sm">Search:</label>
-                <input type="text" id="searchInput" name="search" class="border border-gray-300 rounded px-2 py-1" placeholder="" oninput="debouncedSearch(this.value)">
+                <input type="text" id="searchInput" name="search" class="border border-gray-300 rounded px-2 py-1" placeholder="" oninput="debouncedSearchCategories(this.value)">
                 <button onclick="document.getElementById('searchInput').value = ''; searchCategories('')" class="bg-gray-300 text-sm px-2 py-1 rounded ml-2 hover:bg-gray-400">Clear</button>
             </div>
         </div>
@@ -104,10 +104,10 @@
                             <span class="text-sm">Showing <?php echo $offset + 1; ?> to <?php echo min($offset + $rows_per_page, $total_rows); ?> of <?php echo $total_rows; ?> entries</span>
                             <div class="flex items-center space-x-2">
                                 <?php if ($page > 1): ?>
-                                    <button onclick="changePageCategories(<?php echo $page - 1; ?>, '<?php echo htmlspecialchars($searchTerm ?? '', ENT_QUOTES, 'UTF-8'); ?>')" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">Previous</button>
+                                    <button onclick="changePageCategories(<?php echo $page - 1; ?>)" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">Previous</button>
                                 <?php endif; ?>
                                 <?php if ($page < $total_pages): ?>
-                                    <button onclick="changePageCategories(<?php echo $page + 1; ?>, '<?php echo htmlspecialchars($searchTerm ?? '', ENT_QUOTES, 'UTF-8'); ?>')" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">Next</button>
+                                    <button onclick="changePageCategories(<?php echo $page + 1; ?>)" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">Next</button>
                                 <?php endif; ?>
                             </div>
                         </div>

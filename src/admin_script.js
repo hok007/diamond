@@ -165,3 +165,111 @@ function changeRowsPerPageProducts(selectElement) {
 }
 
 const debouncedSearchProducts = debounce(searchProducts, 300);
+
+let currentSearchTermCategories = '';
+
+function editCategory(categoryId) {
+    Swal.fire({
+        title: 'Edit Category',
+        html: `<input type="text" id="categoryId" class="swal2-input" value="${categoryId}" readonly>`,
+        focusConfirm: false,
+        showCancelButton: true,
+        confirmButtonText: 'Save',
+        cancelButtonText: 'Cancel',
+        preConfirm: () => {
+            const categoryId = document.getElementById('categoryId').value;
+            console.log('Category edited:', categoryId);
+            Swal.fire('Saved!', '', 'success');
+        }
+    });
+}
+
+function deleteCategory(categoryId) {
+    Swal.fire({
+        title: 'Delete Category',
+        text: "Are you sure you want to delete this category?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            console.log('Category deleted:', categoryId);
+            Swal.fire('Deleted!', 'Your category has been deleted.', 'success');
+        }
+    });
+}
+
+function fetchAndRenderCategories(page = 1) {
+    if (currentSearchTermCategories.includes('%')) currentSearchTermCategories = decodeURIComponent(currentSearchTermCategories);
+
+    const rowsPerPage = document.querySelector('select[name="rows_per_page"]')?.value || 10;
+    const url = `fetch_admin_category.php?page=${page}&rows_per_page=${rowsPerPage}&search=${encodeURIComponent(currentSearchTermCategories)}`;
+
+    axios.get(url)
+        .then(response => {
+            const data = response.data;
+            const tBody = document.querySelector('#categories_table tbody');
+            const tFooter = document.querySelector('#categories_table tfoot');
+
+            tBody.innerHTML = '<tr><td colspan="8" class="text-center py-4">Loading...</td></tr>';
+
+            if (!data.success || data.categories.length === 0) {
+                tBody.innerHTML = `
+                    <tr><td colspan="8" class="text-center py-4">No categories found.</td></tr>
+                `;
+                tFooter.innerHTML = '';
+                return;
+            }
+
+            const rowsBodyHTML = data.categories.map(category => {
+                return `
+                    <tr>
+                        <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">${category.category_id}</td>
+                        <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">${category.category_name}</td>
+                        <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap">
+                            <button onclick="editCategory('${category.category_id}')" class="bg-blue-500 text-white px-2 py-1 rounded">Edit</button> 
+                            <button onclick="deleteCategory('${category.category_id}')" class="bg-red-500 text-white px-2 py-1 rounded">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            const rowsFooterHTML = `
+                <tr>
+                    <td colspan="8" class="border border-gray-300 px-4 py-2 text-center">
+                        <div class="flex justify-between items-center space-x-2">
+                            <span class="text-sm">Showing ${data.offset + 1} to ${Math.min(data.offset + data.rows_per_page, data.total_rows)} of ${data.total_rows} entries</span>
+                            <div class="flex items-center space-x-2">
+                                ${data.current_page > 1 ? `<button onclick="fetchAndRenderCategories(${data.current_page - 1})" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">Previous</button>` : ''}
+                                ${data.current_page < data.total_pages ? `<button onclick="fetchAndRenderCategories(${data.current_page + 1})" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">Next</button>` : ''}
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+
+            tBody.innerHTML = rowsBodyHTML;
+            tFooter.innerHTML = rowsFooterHTML;
+        })
+        .catch(error => {
+            Swal.fire('Error', 'Failed to load content. Please try again.', 'error');
+            console.error('Error loading categories content:', error);
+        });
+}
+
+function searchCategories(searchTerm) {
+    currentSearchTermCategories = searchTerm;
+    fetchAndRenderCategories(1);
+}
+
+function changePageCategories(page) {
+    fetchAndRenderCategories(page);
+}
+
+function changeRowsPerPageCategories(selectElement) {
+    fetchAndRenderCategories(1);
+}
+
+const debouncedSearchCategories = debounce(searchCategories, 300);
