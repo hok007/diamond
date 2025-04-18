@@ -91,7 +91,7 @@
                             <td class="border border-gray-300 px-4 py-2 text-center text-base whitespace-nowrap"><?php echo $row['product_id']; ?></td>
                             <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap"><?php echo $row['code']; ?></td>
                             <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap"><?php echo $row['name']; ?></td>
-                            <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap"><?php echo $row['description']; ?></td>
+                            <td class="border border-gray-300 px-4 py-2 text-left text-base"><?php echo $row['description']; ?></td>
                             <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap"><?php echo isset($row['price']) ? '$' . number_format($row['price'], 2) : ''; ?></td>
                             <td class="border border-gray-300 px-4 py-2 text-left text-base whitespace-nowrap"><?php echo $row['category_name']; ?></td>
                             <td class="border border-gray-300 px-4 py-2 text-left text-base">
@@ -119,12 +119,14 @@
                     <td colspan="8" class="border border-gray-300 px-4 py-2 text-center">
                         <div class="flex justify-between items-center space-x-2">
                             <span class="text-sm">Showing <?php echo $offset + 1; ?> to <?php echo min($offset + $rows_per_page, $total_rows); ?> of <?php echo $total_rows; ?> entries</span>
-                            <?php if ($page > 1): ?>
-                                <a href="?page=<?php echo $page - 1; ?>" class="bg-gray-300 px-3 py-1 rounded">Previous</a>
-                            <?php endif; ?>
-                            <?php if ($page < $total_pages): ?>
-                                <a href="?page=<?php echo $page + 1; ?>" class="bg-gray-300 px-3 py-1 rounded">Next</a>
-                            <?php endif; ?>
+                            <div class="flex items-center space-x-2">
+                                <?php if ($page > 1): ?>
+                                    <button onclick="changePage(<?php echo $page - 1; ?>, '<?php echo htmlspecialchars($searchTerm ?? '', ENT_QUOTES, 'UTF-8'); ?>')" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">Previous</button>
+                                <?php endif; ?>
+                                <?php if ($page < $total_pages): ?>
+                                    <button onclick="changePage(<?php echo $page + 1; ?>, '<?php echo htmlspecialchars($searchTerm ?? '', ENT_QUOTES, 'UTF-8'); ?>')" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">Next</button>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </td>
                 </tr>

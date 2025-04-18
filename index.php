@@ -63,6 +63,6 @@
         <p>© 2025 <a href="#" target="_blank" class="underline hover:text-blue-400">Diamond</a>. All rights reserved.</p>
     </footer>
 
-    <script src="src/script.js"></script>
+    <script src="src/user_script.js"></script>
 </body>
 </html>
