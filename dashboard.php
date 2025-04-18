@@ -17,15 +17,15 @@
             <h2 class="text-2xl font-bold mb-4">Menu</h2>
             <ul>
                 <li class="mb-2">
-                    <button class="w-full text-left p-2 hover:bg-red-100 hover:text-black focus:bg-red-500"
-                        onclick="showDetail('categories'); setActiveMenu(this)">Categories</button>
-                </li>
-                <li class="mb-2">
-                    <button class="w-full text-left p-2 hover:bg-red-100 hover:text-black focus:bg-red-500"
+                    <button class="w-full text-left p-2 text-white bg-red-500 hover:bg-red-100 hover:text-black"
                         onclick="showDetail('products'); setActiveMenu(this)">Products</button>
                 </li>
                 <li class="mb-2">
-                    <button class="w-full text-left p-2 hover:bg-red-100 hover:text-black focus:bg-red-500"
+                    <button class="w-full text-left p-2 hover:bg-red-100 hover:text-black"
+                        onclick="showDetail('categories'); setActiveMenu(this)">Categories</button>
+                </li>
+                <li class="mb-2">
+                    <button class="w-full text-left p-2 hover:bg-red-100 hover:text-black"
                         onclick="showDetail('settings'); setActiveMenu(this)">Settings</button>
                 </li>
             </ul>

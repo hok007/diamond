@@ -34,6 +34,23 @@ function setActiveMenu(button) {
     button.classList.add('bg-red-500', 'text-white');
 }
 
+function debounce(func, wait) {
+    let timeout;
+    return function (...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+}
+
+function init() {
+    const initialSection = 'products';
+    showDetail(initialSection);
+}
+
+window.addEventListener('DOMContentLoaded', init);
+
+let currentSearchTermProducts = '';
+
 function editProduct(productCode) {
     Swal.fire({
         title: 'Edit Product',
@@ -67,25 +84,19 @@ function deleteProduct(productCode) {
     });
 }
 
-function debounce(func, wait) {
-    let timeout;
-    return function (...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
-    };
-}
+function fetchAndRenderProducts(page = 1) {
+    if (currentSearchTermProducts.includes('%')) currentSearchTermProducts = decodeURIComponent(currentSearchTermProducts);
 
-const debouncedSearch = debounce(searchProducts, 300);
-
-function fetchAndRenderProducts(page = 1, searchTerm = '') {
     const rowsPerPage = document.querySelector('select[name="rows_per_page"]')?.value || 10;
-    const url = `fetch_admin_product.php?page=${page}&rows_per_page=${rowsPerPage}&search=${encodeURIComponent(searchTerm)}`;
+    const url = `fetch_admin_product.php?page=${page}&rows_per_page=${rowsPerPage}&search=${encodeURIComponent(currentSearchTermProducts)}`;
 
     axios.get(url)
         .then(response => {
             const data = response.data;
             const tBody = document.querySelector('#products_table tbody');
             const tFooter = document.querySelector('#products_table tfoot');
+
+            tBody.innerHTML = '<tr><td colspan="8" class="text-center py-4">Loading...</td></tr>';
 
             if (!data.success || data.products.length === 0) {
                 tBody.innerHTML = `
@@ -123,8 +134,8 @@ function fetchAndRenderProducts(page = 1, searchTerm = '') {
                         <div class="flex justify-between items-center space-x-2">
                             <span class="text-sm">Showing ${data.offset + 1} to ${Math.min(data.offset + data.rows_per_page, data.total_rows)} of ${data.total_rows} entries</span>
                             <div class="flex items-center space-x-2">
-                                ${data.current_page > 1 ? `<button onclick="fetchAndRenderProducts(${data.current_page - 1}, '${encodeURIComponent(searchTerm)}')" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">Previous</button>` : ''}
-                                ${data.current_page < data.total_pages ? `<button onclick="fetchAndRenderProducts(${data.current_page + 1}, '${encodeURIComponent(searchTerm)}')" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">Next</button>` : ''}
+                                ${data.current_page > 1 ? `<button onclick="fetchAndRenderProducts(${data.current_page - 1})" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">Previous</button>` : ''}
+                                ${data.current_page < data.total_pages ? `<button onclick="fetchAndRenderProducts(${data.current_page + 1})" class="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400">Next</button>` : ''}
                             </div>
                         </div>
                     </td>
@@ -141,13 +152,16 @@ function fetchAndRenderProducts(page = 1, searchTerm = '') {
 }
 
 function searchProducts(searchTerm) {
-    fetchAndRenderProducts(1, searchTerm);
+    currentSearchTermProducts = searchTerm;
+    fetchAndRenderProducts(1);
 }
 
-function changePageProducts(page, searchTerm = '') {
-    fetchAndRenderProducts(page, searchTerm);
+function changePageProducts(page) {
+    fetchAndRenderProducts(page);
 }
 
 function changeRowsPerPageProducts(selectElement) {
     fetchAndRenderProducts(1);
 }
+
+const debouncedSearchProducts = debounce(searchProducts, 300);
