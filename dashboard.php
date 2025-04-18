@@ -20,15 +20,15 @@
             <ul>
                 <li class="mb-2">
                     <button class="w-full text-left p-2 hover:bg-red-100 hover:text-black focus:bg-red-500"
-                        onclick="showDetail('categories')">Categories</button>
+                        onclick="showDetail('categories'); setActiveMenu(this)">Categories</button>
                 </li>
                 <li class="mb-2">
                     <button class="w-full text-left p-2 hover:bg-red-100 hover:text-black focus:bg-red-500"
-                        onclick="showDetail('products')">Products</button>
+                        onclick="showDetail('products'); setActiveMenu(this)">Products</button>
                 </li>
                 <li class="mb-2">
                     <button class="w-full text-left p-2 hover:bg-red-100 hover:text-black focus:bg-red-500"
-                        onclick="showDetail('settings')">Settings</button>
+                        onclick="showDetail('settings'); setActiveMenu(this)">Settings</button>
                 </li>
             </ul>
         </div>
@@ -73,6 +73,12 @@
                         content.innerHTML = `<p class="text-red-500">Failed to load settings content.</p>`;
                     });
             }
+        }
+
+        function setActiveMenu(button) {
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(btn => btn.classList.remove('bg-red-500', 'text-white'));
+            button.classList.add('bg-red-500', 'text-white');
         }
 
         function editProduct(productCode) {
