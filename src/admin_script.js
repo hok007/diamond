@@ -57,6 +57,43 @@ function init() {
 
 window.addEventListener('DOMContentLoaded', init);
 
+function previewImagesSwal() {
+    const files = document.getElementById('image').files;
+
+    if (files.length === 0) {
+        Swal.fire('No images selected', 'Please choose one or more images.', 'warning');
+        return;
+    }
+
+    let htmlContent = '';
+    const readers = [];
+
+    for (let i = 0; i < files.length; i++) {
+        const reader = new FileReader();
+        readers.push(reader);
+
+        reader.onload = function(e) {
+            const fileName = files[readers.indexOf(reader)].name;
+            htmlContent += `
+                <div class="flex flex-col items-center m-1">
+                    <img src="${e.target.result}" class="w-48 h-48 object-cover rounded shadow">
+                    <span class="text-sm mt-1 text-center">${fileName}</span>
+                </div>`;
+        
+            if (readers.length === files.length && readers.every(r => r.readyState === 2)) {
+                Swal.fire({
+                    title: 'Selected Images',
+                    html: `<div class="flex flex-wrap justify-center">${htmlContent}</div>`,
+                    showCloseButton: true,
+                    showConfirmButton: false
+                });
+            }
+        };
+
+        reader.readAsDataURL(files[i]);
+    }
+}
+
 let currentSearchTermProducts = '';
 
 async function addProduct() {
@@ -65,7 +102,7 @@ async function addProduct() {
     const name = document.getElementById('name').value;
     const description = document.getElementById('description').value;
     const price = document.getElementById('price').value;
-    const image = document.getElementById('image').files[0];
+    const images = document.getElementById('image').files;
 
     if (!category || !code || !name || !price) {
         Swal.fire({
@@ -82,7 +119,10 @@ async function addProduct() {
     formData.append('name', name);
     formData.append('description', description);
     formData.append('price', price);
-    if (image) formData.append('image', image);
+
+    for (let i = 0; i < images.length; i++) {
+        formData.append('image[]', images[i]);
+    }
 
     try {
         const response = await fetch('admin_insert_product.php', {

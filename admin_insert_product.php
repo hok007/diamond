@@ -15,26 +15,34 @@
             exit;
         }
 
-        $imagePath = null;
-        if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-            $uploadDir = 'uploads/';
+        $uploadDir = 'uploads/';
+        $imagePaths = [];
+
+        if (isset($_FILES['image']) && is_array($_FILES['image']['name'])) {
             if (!is_dir($uploadDir)) {
                 mkdir($uploadDir, 0755, true);
             }
-        
-            $imageName = uniqid() . '-' . date('Ymd') . '-' . basename($_FILES['image']['name']);
-            $fullPath = $uploadDir . $imageName;
-        
-            if (!move_uploaded_file($_FILES['image']['tmp_name'], $fullPath)) {
-                http_response_code(500);
-                echo json_encode(['error' => 'Failed to upload image']);
-                exit;
+
+            foreach ($_FILES['image']['name'] as $index => $imgName) {
+                $tmpName = $_FILES['image']['tmp_name'][$index];
+                $error = $_FILES['image']['error'][$index];
+
+                if ($error === UPLOAD_ERR_OK && is_uploaded_file($tmpName)) {
+                    $uniqueName = uniqid() . '-' . basename($imgName);
+                    $targetPath = $uploadDir . $uniqueName;
+
+                    if (move_uploaded_file($tmpName, $targetPath)) {
+                        $imagePaths[] = $targetPath;
+                    } else {
+                        error_log("Failed to move uploaded file: $tmpName");
+                    }
+                } else {
+                    error_log("Upload error on index $index: $error");
+                }
             }
-        
-            $imagePath = json_encode([$fullPath]);
-        } else {
-            $imagePath = json_encode([]);
         }
+
+        $imageJson = json_encode($imagePaths);
 
         $stmt = $conn->prepare("
             INSERT INTO products (category_id, code, name, description, price, image, store_id)
@@ -42,19 +50,14 @@
         ");
 
         $storeId = 1;
-        $stmt->bind_param("isssdsi", $category, $code, $name, $description, $price, $imagePath, $storeId);
+        $stmt->bind_param("isssdsi", $category, $code, $name, $description, $price, $imageJson, $storeId);
 
         if ($stmt->execute()) {
             http_response_code(201);
             echo json_encode(['message' => 'Product added successfully']);
         } else {
-            if ($stmt->errno == 1062) {
-                http_response_code(400);
-                echo json_encode(['error' => 'Product code already exists']);
-            } else {
-                http_response_code(500);
-                echo json_encode(['error' => 'Database error: ' . $stmt->error]);
-            }
+            http_response_code(500);
+            echo json_encode(['error' => 'Database error: ' . $stmt->error]);
         }
 
         $stmt->close();
