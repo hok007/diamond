@@ -32,7 +32,7 @@
         </div>
 
         <!-- Content -->
-        <div class="w-5/6 bg-gray-100 p-0">
+        <div class="w-5/6 bg-white p-0">
             <div id="content" class="text-gray-800">
                 <div class="container mx-auto p-4">
                     <h2 class="text-3xl font-bold">Welcome to the Dashboard</h2>

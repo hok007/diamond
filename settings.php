@@ -14,7 +14,7 @@
     <div class="container mx-auto p-4 h-screen overflow-y-scroll">
             <div class="flex items-center justify-between mb-4">
                 <span class="text-2xl font-bold">Settings</span>
-                <button class="bg-gray-100 text-gray-100 text-sm font-bold px-1 py-2 rounded">Add New</button>
+                <button class="bg-white text-white text-sm font-bold px-1 py-2 rounded">Add New</button>
             </div>
     </div>
 </body>

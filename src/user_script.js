@@ -65,6 +65,8 @@ function showPopupDialog(product) {
         imageHtml = `<img src="default-image.jpg" alt="No image" class="w-full h-96 object-cover rounded-tl-xl rounded-tr-xl">`;
     }
 
+    const productPrice = product.price ? '$' + parseFloat(product.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '';
+
     Swal.fire({
         html: 
             `<div class="absolute top-0 right-0 p-4 z-50">
@@ -73,7 +75,7 @@ function showPopupDialog(product) {
                 </svg>
             </div>` +
             imageHtml +
-            `<p class="mt-2 mx-4 text-red-500 text-base font-bold text-left">${product.price ? '$' + parseFloat(product.price).toFixed(2) : 'Price not available'}</p>` +
+            `<p class="mt-2 mx-4 text-red-500 text-base font-bold text-left">${productPrice}</p>` +
             `<p class="mt-4 mx-4 text-red-500 text-xs font-bold text-left">ID: ${product.code || 'N/A'}</p>` +
             `<h2 class="mx-4 text-gray-800 text-base font-bold text-left">${product.name || 'Unnamed Product'}</h2>` +
             `<p class="mt-2 mx-4 text-left text-base">${product.description || 'No description available'}</p>`,

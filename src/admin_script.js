@@ -25,6 +25,14 @@ function showDetail(section) {
                 console.error('Error loading settings content:', error);
                 content.innerHTML = `<p class="text-red-500">Failed to load settings content.</p>`;
             });
+    } else if (section === 'addProduct') {
+        axios.get('add_product.php')
+            .then(response => { content.innerHTML = response.data; })
+            .catch(error => {
+                Swal.fire('Error', 'Failed to load content. Please try again.', 'error');
+                console.error('Error loading settings content:', error);
+                content.innerHTML = `<p class="text-red-500">Failed to load add product content.</p>`;
+            });
     }
 }
 
@@ -50,6 +58,64 @@ function init() {
 window.addEventListener('DOMContentLoaded', init);
 
 let currentSearchTermProducts = '';
+
+async function addProduct() {
+    const category = document.getElementById('category').value;
+    const code = document.getElementById('code').value;
+    const name = document.getElementById('name').value;
+    const description = document.getElementById('description').value;
+    const price = document.getElementById('price').value;
+    const image = document.getElementById('image').files[0];
+
+    if (!category || !code || !name || !price) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Please fill in all required fields!',
+        });
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('category', category);
+    formData.append('code', code);
+    formData.append('name', name);
+    formData.append('description', description);
+    formData.append('price', price);
+    if (image) formData.append('image', image);
+
+    try {
+        const response = await fetch('admin_insert_product.php', {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || result.error) {
+            throw new Error(result.error || 'Failed to add product');
+        }
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'Product added successfully!',
+        }).then(() => {
+            document.getElementById('category').value = '';
+            document.getElementById('code').value = '';
+            document.getElementById('name').value = '';
+            document.getElementById('description').value = '';
+            document.getElementById('price').value = '';
+            document.getElementById('image').value = '';
+        });
+    } catch (error) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to add product: ' + error.message,
+        });
+    }
+}
 
 function editProduct(productCode) {
     Swal.fire({
@@ -88,7 +154,7 @@ function fetchAndRenderProducts(page = 1) {
     if (currentSearchTermProducts.includes('%')) currentSearchTermProducts = decodeURIComponent(currentSearchTermProducts);
 
     const rowsPerPage = document.querySelector('select[name="rows_per_page"]')?.value || 10;
-    const url = `fetch_admin_product.php?page=${page}&rows_per_page=${rowsPerPage}&search=${encodeURIComponent(currentSearchTermProducts)}`;
+    const url = `admin_fetch_product.php?page=${page}&rows_per_page=${rowsPerPage}&search=${encodeURIComponent(currentSearchTermProducts)}`;
 
     axios.get(url)
         .then(response => {
@@ -205,7 +271,7 @@ function fetchAndRenderCategories(page = 1) {
     if (currentSearchTermCategories.includes('%')) currentSearchTermCategories = decodeURIComponent(currentSearchTermCategories);
 
     const rowsPerPage = document.querySelector('select[name="rows_per_page"]')?.value || 10;
-    const url = `fetch_admin_category.php?page=${page}&rows_per_page=${rowsPerPage}&search=${encodeURIComponent(currentSearchTermCategories)}`;
+    const url = `admin_fetch_category.php?page=${page}&rows_per_page=${rowsPerPage}&search=${encodeURIComponent(currentSearchTermCategories)}`;
 
     axios.get(url)
         .then(response => {
