@@ -4,9 +4,7 @@
     try {
         $sql = "SELECT category_id, category_name FROM categories ORDER BY category_id ASC";
         $result = $conn->query($sql);
-        if (!$result) {
-            throw new Exception('Query error: ' . $conn->error);
-        }
+        if (!$result) throw new Exception('Query error: ' . $conn->error);
     
         $categories = [];
         while ($row = $result->fetch_assoc()) {
@@ -79,8 +77,8 @@
             </div>
             <div>
                 <label for="image" class="block text-sm font-medium text-gray-700 font-bold">Product Image</label>
-                <input type="file" id="image" name="image[]" accept="image/*" multiple class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 file:cursor-pointer">
-                <button onclick="previewImagesSwal()" class="mt-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">View Images</button>
+                <input type="file" id="image" name="image[]" accept="image/*" onchange="previewImages(event, selectedImageProducts)" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 file:cursor-pointer">
+                <div id="preview-list" class="mt-4 flex flex-wrap gap-4"></div>
             </div>
             <div>
                 <button type="button" onClick="addProduct()" class="mt-4 w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">Add Product</button>

@@ -50,6 +50,70 @@ function debounce(func, wait) {
     };
 }
 
+function previewImages(event, selectedImages) {
+    const files = event.target.files;
+    const previewContainer = document.getElementById('preview-list');
+
+    if (!files || files.length === 0) {
+        Swal.fire({
+            icon: 'info',
+            title: 'No Images Selected',
+            text: 'Please select some images to preview.',
+        });
+        return;
+    }
+
+    Array.from(files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const container = document.createElement('div');
+            container.className = 'flex flex-col items-center space-y-2';
+
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.alt = file.name;
+            img.title = 'Click to remove';
+            img.className = 'w-36 h-36 border border-gray-300 rounded cursor-pointer';
+            img.onclick = () => {
+                Swal.fire({
+                    title: 'Remove Image',
+                    text: "Do you want to remove this image?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, remove it!',
+                    customClass: {
+                        text: 'text-base font-semibold'
+                    },
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const index = selectedImages.indexOf(file);
+                        if (index > -1) {
+                            selectedImages.splice(index, 1);
+                            previewContainer.removeChild(container);
+                        }
+                    }
+                });
+            };
+
+            const name = document.createElement('p');
+            name.textContent = file.name;
+            name.style.marginTop = '0rem';
+            name.style.fontSize = '0.8rem';
+            name.style.textAlign = 'center';
+            name.style.maxWidth = '100%';
+            name.style.overflow = 'hidden';
+
+            container.appendChild(img);
+            container.appendChild(name);
+            previewContainer.appendChild(container);
+            selectedImages.push(file);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
 function init() {
     const initialSection = 'products';
     showDetail(initialSection);
@@ -57,44 +121,8 @@ function init() {
 
 window.addEventListener('DOMContentLoaded', init);
 
-function previewImagesSwal() {
-    const files = document.getElementById('image').files;
-
-    if (files.length === 0) {
-        Swal.fire('No images selected', 'Please choose one or more images.', 'warning');
-        return;
-    }
-
-    let htmlContent = '';
-    const readers = [];
-
-    for (let i = 0; i < files.length; i++) {
-        const reader = new FileReader();
-        readers.push(reader);
-
-        reader.onload = function(e) {
-            const fileName = files[readers.indexOf(reader)].name;
-            htmlContent += `
-                <div class="flex flex-col items-center m-1">
-                    <img src="${e.target.result}" class="w-48 h-48 object-cover rounded shadow">
-                    <span class="text-sm mt-1 text-center">${fileName}</span>
-                </div>`;
-        
-            if (readers.length === files.length && readers.every(r => r.readyState === 2)) {
-                Swal.fire({
-                    title: 'Selected Images',
-                    html: `<div class="flex flex-wrap justify-center">${htmlContent}</div>`,
-                    showCloseButton: true,
-                    showConfirmButton: false
-                });
-            }
-        };
-
-        reader.readAsDataURL(files[i]);
-    }
-}
-
 let currentSearchTermProducts = '';
+let selectedImageProducts = [];
 
 async function addProduct() {
     const category = document.getElementById('category').value;
@@ -102,9 +130,9 @@ async function addProduct() {
     const name = document.getElementById('name').value;
     const description = document.getElementById('description').value;
     const price = document.getElementById('price').value;
-    const images = document.getElementById('image').files;
+    const images = selectedImageProducts;
 
-    if (!category || !code || !name || !price) {
+    if (!category || !code || !name || !price || images.length === 0) {
         Swal.fire({
             icon: 'error',
             title: 'Oops...',
@@ -147,6 +175,8 @@ async function addProduct() {
             document.getElementById('description').value = '';
             document.getElementById('price').value = '';
             document.getElementById('image').value = '';
+            document.getElementById('preview-list').innerHTML = '';
+            selectedImageProducts = [];
         });
     } catch (error) {
         Swal.fire({
